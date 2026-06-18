@@ -3,13 +3,23 @@ import json
 from datetime import datetime
 command = sys.argv[1]
 
-def add():
+# Read existing tasks
+def loadTasks(t:list[dict]):
     try:
         with open("tasks.json", "r") as file:
-            tasks = json.load(file)
+            t = json.load(file)
     except (FileNotFoundError, json.JSONDecodeError):
-        tasks = []
-    
+        t = []
+    return t
+
+# Save everything back
+def saveTasks(t:list[dict]):
+    with open("tasks.json","w") as file:
+        json.dump(t, file, indent = 4)
+
+def add():
+    tasks = []
+    loadTasks(tasks)
     newTask = {
         "id" : len(tasks) + 1,
         "description"  : sys.argv[2],
@@ -17,89 +27,63 @@ def add():
         "createdAt" : datetime.now().isoformat()
     }
     tasks.append(newTask)
-
-    with open("tasks.json", "w") as file:
-        json.dump(tasks, file, indent=4)
+    saveTasks(tasks)
 
 def update():
     id = int(sys.argv[2])
     newdesc = sys.argv[3]
-
-    try:
-        with open("tasks.json", "r") as file:
-            tasks = json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
-        tasks = []
-        
+    tasks = []
+    loadTasks(tasks)
     tasks[id]["description"] = newdesc
     tasks[id]["updatedAt"] = datetime.now().isoformat()
-
-    with open("tasks.json", "w") as file:
-        json.dump(tasks, file, indent=4)
+    saveTasks(tasks)
 
 def delete():
     id = int(sys.argv[2])
-
-    try:
-        with open("tasks.json", "r") as file:
-            tasks = json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
-        tasks = []
+    tasks = []
+    loadTasks(tasks)
     del(tasks[id])
-
-    with open("tasks.json", "w") as file:
-        json.dump(tasks, file, indent=4)
+    saveTasks(tasks)
 
 def markInProgress():
-    with open("tasks.json", "r") as file:
-        tasks = json.load(file)
-
+    tasks = []
+    loadTasks(tasks)
     id = int(sys.argv[2])
     tasks[id]["status"] = "in progress"
     tasks[id]["updatedAt"] = datetime.now().isoformat()
-
-    with open("tasks.json", "w") as file:
-        json.dump(tasks, file, indent=4)
-
+    saveTasks(tasks)
 
 def markDone():
-    with open("tasks.json", "r") as file:
-        tasks = json.load(file)
-
+    tasks = []
+    loadTasks(tasks)
     id = int(sys.argv[2])
     tasks[id]["status"] = "Done"
     tasks[id]["updatedAt"] = datetime.now().isoformat()
-
-    with open("tasks.json", "w") as file:
-        json.dump(tasks, file, indent=4)
+    saveTasks(tasks)
 
 def listTasks():
-    with open("tasks.json", "r") as file:
-        tasks = json.load(file)
-
+    tasks = []
+    loadTasks(tasks)
     for i in range(0,len(tasks)):
         print(tasks[i])
 
 def listDone():
-    with open("tasks.json", "r") as file:
-        tasks = json.load(file)
-
+    tasks = []
+    loadTasks(tasks)
     for i in range(0,len(tasks)):
         if tasks[i]["status"] == "Done":
             print(tasks[i])
 
 def listToDo():
-    with open("tasks.json", "r") as file:
-        tasks = json.load(file)
-
+    tasks = []
+    loadTasks(tasks)
     for i in range(0,len(tasks)):
         if tasks[i]["status"] == "todo":
             print(tasks[i])
 
 def listInProg():
-    with open("tasks.json", "r") as file:
-        tasks = json.load(file)
-
+    tasks = []
+    loadTasks(tasks)
     for i in range(0,len(tasks)):
         if tasks[i]["status"] == "in progress":
             print(tasks[i])
@@ -125,6 +109,7 @@ elif command == "list" :
     else:
         listDone()
 else : 
-    print("wrong choose!!\nchoose one of this operation!\nadd\nupdate\ndelete\nmark-in-progress\nmark-done\nlist\nlist done|| todo|| in-progress")
-
-
+    print("wrong choose!!\n" \
+    "choose one of this operation!\n" \
+    "add\nupdate\ndelete\nmark-in-progress\nmark-done\n" \
+    "list\nlist done|| todo|| in-progress")
