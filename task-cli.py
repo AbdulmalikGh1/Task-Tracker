@@ -19,9 +19,9 @@ def saveTasks(t:list[dict]):
 
 def add():
     tasks = []
-    loadTasks(tasks)
+    tasks = loadTasks(tasks)
     newTask = {
-        "id" : len(tasks) + 1,
+        "task_id" : len(tasks) + 1,
         "description"  : sys.argv[2],
         "status" : "todo",
         "createdAt" : datetime.now().isoformat()
@@ -33,81 +33,95 @@ def update():
     id = int(sys.argv[2])
     newdesc = sys.argv[3]
     tasks = []
-    loadTasks(tasks)
-    tasks[id]["description"] = newdesc
-    tasks[id]["updatedAt"] = datetime.now().isoformat()
+    tasks = loadTasks(tasks)
+    for task in tasks:
+        if task["task_id"] == id:
+            task["description"] = newdesc
+            task["updatedAt"] = datetime.now().isoformat()
+            break
     saveTasks(tasks)
 
 def delete():
     id = int(sys.argv[2])
     tasks = []
-    loadTasks(tasks)
-    del(tasks[id])
+    tasks = loadTasks(tasks)
+    try:
+        for task in tasks:
+            if task["task_id"] == id:
+                del(task)
+    except IndexError:
+        print("Task not found.")
     saveTasks(tasks)
 
 def markInProgress():
     tasks = []
-    loadTasks(tasks)
+    tasks = loadTasks(tasks)
     id = int(sys.argv[2])
-    tasks[id]["status"] = "in progress"
-    tasks[id]["updatedAt"] = datetime.now().isoformat()
+    for task in tasks:
+        if task["task_id"] == id:
+            tasks[id]["status"] = "in progress"
+            tasks[id]["updatedAt"] = datetime.now().isoformat()
     saveTasks(tasks)
 
 def markDone():
     tasks = []
-    loadTasks(tasks)
+    tasks = loadTasks(tasks)
     id = int(sys.argv[2])
-    tasks[id]["status"] = "Done"
-    tasks[id]["updatedAt"] = datetime.now().isoformat()
+    for task in tasks:
+        if task["task_id"] == id:
+            tasks[id]["status"] = "done"
+            tasks[id]["updatedAt"] = datetime.now().isoformat()
     saveTasks(tasks)
 
 def listTasks():
     tasks = []
-    loadTasks(tasks)
-    for i in range(0,len(tasks)):
-        print(tasks[i])
+    tasks = loadTasks(tasks)
+    for task in tasks:
+        print(f'{task["task_id"]}. {task}')
 
 def listDone():
     tasks = []
-    loadTasks(tasks)
-    for i in range(0,len(tasks)):
-        if tasks[i]["status"] == "Done":
-            print(tasks[i])
+    tasks = loadTasks(tasks)
+    for task in tasks:
+        if task["status"] == "done":
+            print(f'{task["task_id"]}. {task}')
 
 def listToDo():
     tasks = []
-    loadTasks(tasks)
-    for i in range(0,len(tasks)):
-        if tasks[i]["status"] == "todo":
-            print(tasks[i])
+    tasks = loadTasks(tasks)
+    for task in tasks:
+        if task["status"] == "todo":
+            print(f'{task["task_id"]}. {task}')
 
 def listInProg():
     tasks = []
-    loadTasks(tasks)
-    for i in range(0,len(tasks)):
-        if tasks[i]["status"] == "in progress":
-            print(tasks[i])
+    tasks = loadTasks(tasks)
+    for task in tasks:
+        if task["status"] == "in progress":
+            print(f'{task["task_id"]}. {task}')
 
-if command == "add":
-    add()
-elif command == "update" :
-    update()
-elif command == "delete":
-    delete()
-elif command == "mark-in-progress" : 
-    markInProgress()
-elif command == "mark-done" : 
-    markDone()
+commands = {
+    "add": add,
+    "update": update,
+    "delete": delete,
+    "mark-in-progress": markInProgress,
+    "mark-done" : markDone
+}
+
+if command in commands:
+    commands[command]()
+
 elif command == "list" :
-
-    if sys.argv[2] == "all":
+    if len(sys.argv) == 2:
         listTasks()
     elif sys.argv[2] == "todo":
         listToDo()
     elif sys.argv[2] == "in-progress":
         listInProg()
-    else:
+    elif sys.argv[2] == "done":
         listDone()
+    else:
+        print("Invalid list option.")
 else : 
     print("wrong choose!!\n" \
     "choose one of this operation!\n" \
